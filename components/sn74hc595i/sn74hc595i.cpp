@@ -61,7 +61,7 @@ void SN74HC595IComponent::set_inverted_(uint16_t pin, bool inverted) {
     return;
   }
   if (inverted) {
-    this->inverted_bytes_[pin / 8] |= (1 << ((pin % 8));
+    this->inverted_bytes_[pin / 8] |= (1 << (pin % 8));
   } else {
     this->inverted_bytes_[pin / 8] &= ~(1 << (pin % 8));
   }
