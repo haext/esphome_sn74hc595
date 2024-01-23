@@ -29,7 +29,7 @@ class SN74HC595IComponent : public Component {
   }
   void set_sr_count(uint8_t count) {
     this->sr_count_ = count;
-    this->output_bytes_.resize(count * 2);
+    this->storage_bytes_.resize(count * 2);
   }
 
  protected:
@@ -58,6 +58,7 @@ class SN74HC595IGPIOPin : public GPIOPin, public Parented<SN74HC595IComponent> {
   std::string dump_summary() const override;
 
   void set_pin(uint16_t pin) { pin_ = pin; }
+  void set_inverted(bool inverted) override;
   
  protected:
   uint16_t pin_;

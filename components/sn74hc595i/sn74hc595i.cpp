@@ -68,7 +68,7 @@ void SN74HC595IComponent::set_inverted_(uint16_t pin, bool inverted) {
 }
 
 void SN74HC595IGPIOComponent::write_gpio() {
-  for (auto byte = this->output_bytes_.rbegin(); byte != this->output_bytes_.rend(); byte++) {
+  for (auto byte = this->storage_bytes_.rbegin(); byte != this->storage_bytes_.rend(); byte++) {
     for (int8_t i = 3; i >= 0; i--) {
       bool bit = (*byte >> (i * 2)) & 1;
       bool inverted = (*byte >> (i * 2)) & 2;
@@ -82,7 +82,7 @@ void SN74HC595IGPIOComponent::write_gpio() {
 
 #ifdef USE_SPI
 void SN74HC595ISPIComponent::write_gpio() {
-  for (auto byte = this->output_bytes_.rbegin(); byte != this->output_bytes_.rend(); byte++) {
+  for (auto byte = this->storage_bytes_.rbegin(); byte != this->storage_bytes_.rend(); byte++) {
     this->enable();
     this->transfer_byte(*byte);
     this->disable();
