@@ -29,7 +29,8 @@ class SN74HC595IComponent : public Component {
   }
   void set_sr_count(uint8_t count) {
     this->sr_count_ = count;
-    this->storage_bytes_.resize(count * 2);
+    this->value_bytes_.resize(count);
+    this->inverted_bytes_.resize(count);
   }
 
  protected:
@@ -45,7 +46,8 @@ class SN74HC595IComponent : public Component {
   GPIOPin *oe_pin_;
   uint8_t sr_count_;
   bool have_oe_pin_{false};
-  std::vector<uint8_t> storage_bytes_;
+  std::vector<uint8_t> value_bytes_;
+  std::vector<uint8_t> inverted_bytes_;
 };
 
 /// Helper class to expose a SC74HC595 pin as an internal output GPIO pin.

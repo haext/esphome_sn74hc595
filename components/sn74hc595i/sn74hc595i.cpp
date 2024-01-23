@@ -48,9 +48,9 @@ void SN74HC595IComponent::digital_write_(uint16_t pin, bool value) {
     return;
   }
   if (value) {
-    this->storage_bytes_[pin / 4] |= (1 << ((pin % 4) * 2));
+    this->value_bytes_[pin / 8] |= (1 << (pin % 8));
   } else {
-    this->storage_bytes_[pin / 4] &= ~(1 << ((pin % 4) * 2));
+    this->value_bytes_[pin / 8] &= ~(1 << (pin % 8));
   }
   this->write_gpio();
 }
@@ -61,31 +61,40 @@ void SN74HC595IComponent::set_inverted_(uint16_t pin, bool inverted) {
     return;
   }
   if (inverted) {
-    this->storage_bytes_[pin / 4] |= (2 << ((pin % 4) * 2));
+    this->inverted_bytes_[pin / 8] |= (1 << ((pin % 8));
   } else {
-    this->storage_bytes_[pin / 4] &= ~(2 << ((pin % 4) * 2));
+    this->inverted_bytes_[pin / 8] &= ~(1 << (pin % 8));
   }
 }
 
 void SN74HC595IGPIOComponent::write_gpio() {
-  for (auto byte = this->storage_bytes_.rbegin(); byte != this->storage_bytes_.rend(); byte++) {
-    for (int8_t i = 3; i >= 0; i--) {
-      bool bit = (*byte >> (i * 2)) & 1;
-      bool inverted = (*byte >> (i * 2)) & 2;
-      this->data_pin_->digital_write(bit != inverted);
+  auto value = this->value_bytes_.rbegin();
+  auto inverted = this->inverted_bytes_.rbegin();
+  while (value != this->value_bytes_.rend() && inverted != this->inverted_bytes_.rend()) {
+    for (int8_t i = 7; i >= 0; i--) {
+      bool value_bit = (*value >> i) & 1;
+      bool value_inverted = (*inverted >> i) & 1;
+      this->data_pin_->digital_write(value_bit != value_inverted);
       this->clock_pin_->digital_write(true);
       this->clock_pin_->digital_write(false);
     }
+    value++;
+    inverted++;
   }
   SN74HC595IComponent::write_gpio();
 }
 
 #ifdef USE_SPI
 void SN74HC595ISPIComponent::write_gpio() {
-  for (auto byte = this->storage_bytes_.rbegin(); byte != this->storage_bytes_.rend(); byte++) {
+  auto value = this->value_bytes_.rbegin();
+  auto inverted = this->inverted_bytes_.rbegin();
+  while (value != this->value_bytes_.rend() && inverted != this->inverted_bytes_.rend()) {
     this->enable();
-    this->transfer_byte(*byte);
+    this->transfer_byte((*byte) ^ (*inverted));
     this->disable();
+    
+    value++;
+    inverted++;
   }
   SN74HC595IComponent::write_gpio();
 }
