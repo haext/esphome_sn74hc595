@@ -39,7 +39,7 @@ void SN74HC595ISPIComponent::setup() {
 }
 #endif
 
-void SN74HC595IComponent::dump_config() { ESP_LOGCONFIG(TAG, "SN74HC595I:"); }
+void SN74HC595IComponent::dump_config() { ESP_LOGCONFIG(TAG, "SN74HC595IPP:"); }
 
 void SN74HC595IComponent::digital_write_(uint16_t pin, bool value) {
   if (pin >= this->sr_count_ * 8) {
