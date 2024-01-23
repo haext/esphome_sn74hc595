@@ -15,21 +15,21 @@ from esphome.core import EsphomeError
 
 MULTI_CONF = True
 
-sn74hc595_ns = cg.esphome_ns.namespace("sn74hc595")
+sn74hc595i_ns = cg.esphome_ns.namespace("sn74hc595i")
 
-SN74HC595Component = sn74hc595_ns.class_("SN74HC595Component", cg.Component)
-SN74HC595GPIOComponent = sn74hc595_ns.class_(
-    "SN74HC595GPIOComponent", SN74HC595Component
+SN74HC595IComponent = sn74hc595i_ns.class_("SN74HC595IComponent", cg.Component)
+SN74HC595IGPIOComponent = sn74hc595i_ns.class_(
+    "SN74HC595IGPIOComponent", SN74HC595IComponent
 )
-SN74HC595SPIComponent = sn74hc595_ns.class_(
-    "SN74HC595SPIComponent", SN74HC595Component, spi.SPIDevice
-)
-
-SN74HC595GPIOPin = sn74hc595_ns.class_(
-    "SN74HC595GPIOPin", cg.GPIOPin, cg.Parented.template(SN74HC595Component)
+SN74HC595ISPIComponent = sn74hc595i_ns.class_(
+    "SN74HC595ISPIComponent", SN74HC595IComponent, spi.SPIDevice
 )
 
-CONF_SN74HC595 = "sn74hc595"
+SN74HC595IGPIOPin = sn74hc595i_ns.class_(
+    "SN74HC595IGPIOPin", cg.GPIOPin, cg.Parented.template(SN74HC595IComponent)
+)
+
+CONF_SN74HC595I = "sn74hc595i"
 CONF_LATCH_PIN = "latch_pin"
 CONF_OE_PIN = "oe_pin"
 CONF_SR_COUNT = "sr_count"
@@ -37,7 +37,7 @@ CONF_SR_COUNT = "sr_count"
 CONFIG_SCHEMA = cv.Any(
     cv.Schema(
         {
-            cv.Required(CONF_ID): cv.declare_id(SN74HC595GPIOComponent),
+            cv.Required(CONF_ID): cv.declare_id(SN74HC595IGPIOComponent),
             cv.Required(CONF_DATA_PIN): pins.gpio_output_pin_schema,
             cv.Required(CONF_CLOCK_PIN): pins.gpio_output_pin_schema,
             cv.Required(CONF_LATCH_PIN): pins.gpio_output_pin_schema,
@@ -47,7 +47,7 @@ CONFIG_SCHEMA = cv.Any(
     ).extend(cv.COMPONENT_SCHEMA),
     cv.Schema(
         {
-            cv.Required(CONF_ID): cv.declare_id(SN74HC595SPIComponent),
+            cv.Required(CONF_ID): cv.declare_id(SN74HC595ISPIComponent),
             cv.Required(CONF_LATCH_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_OE_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_SR_COUNT, default=1): cv.int_range(min=1, max=256),
@@ -91,31 +91,31 @@ def _validate_output_mode(value):
     return value
 
 
-SN74HC595_PIN_SCHEMA = pins.gpio_base_schema(
-    SN74HC595GPIOPin,
+SN74HC595I_PIN_SCHEMA = pins.gpio_base_schema(
+    SN74HC595IGPIOPin,
     cv.int_range(min=0, max=2047),
     modes=[CONF_OUTPUT],
     mode_validator=_validate_output_mode,
     invertable=True,
 ).extend(
     {
-        cv.Required(CONF_SN74HC595): cv.use_id(SN74HC595Component),
+        cv.Required(CONF_SN74HC595I): cv.use_id(SN74HC595IComponent),
     }
 )
 
 
-def sn74hc595_pin_final_validate(pin_config, parent_config):
+def sn74hc595i_pin_final_validate(pin_config, parent_config):
     max_pins = parent_config[CONF_SR_COUNT] * 8
     if pin_config[CONF_NUMBER] >= max_pins:
         raise cv.Invalid(f"Pin number must be less than {max_pins}")
 
 
 @pins.PIN_SCHEMA_REGISTRY.register(
-    CONF_SN74HC595, SN74HC595_PIN_SCHEMA, sn74hc595_pin_final_validate
+    CONF_SN74HC595I, SN74HC595I_PIN_SCHEMA, sn74hc595i_pin_final_validate
 )
-async def sn74hc595_pin_to_code(config):
+async def sn74hc595i_pin_to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_parented(var, config[CONF_SN74HC595])
+    await cg.register_parented(var, config[CONF_SN74HC595I])
 
     cg.add(var.set_pin(config[CONF_NUMBER]))
     cg.add(var.set_inverted(config[CONF_INVERTED]))

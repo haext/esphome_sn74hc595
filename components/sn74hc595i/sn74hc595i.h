@@ -12,11 +12,11 @@
 #include <vector>
 
 namespace esphome {
-namespace sn74hc595 {
+namespace sn74hc595i {
 
-class SN74HC595Component : public Component {
+class SN74HC595IComponent : public Component {
  public:
-  SN74HC595Component() = default;
+  SN74HC595IComponent() = default;
 
   void setup() override = 0;
   float get_setup_priority() const override;
@@ -33,7 +33,7 @@ class SN74HC595Component : public Component {
   }
 
  protected:
-  friend class SN74HC595GPIOPin;
+  friend class SN74HC595IGPIOPin;
   void digital_write_(uint16_t pin, bool value);
   virtual void write_gpio();
 
@@ -48,7 +48,7 @@ class SN74HC595Component : public Component {
 };
 
 /// Helper class to expose a SC74HC595 pin as an internal output GPIO pin.
-class SN74HC595GPIOPin : public GPIOPin, public Parented<SN74HC595Component> {
+class SN74HC595IGPIOPin : public GPIOPin, public Parented<SN74HC595IComponent> {
  public:
   void setup() override {}
   void pin_mode(gpio::Flags flags) override {}
@@ -64,7 +64,7 @@ class SN74HC595GPIOPin : public GPIOPin, public Parented<SN74HC595Component> {
   bool inverted_;
 };
 
-class SN74HC595GPIOComponent : public SN74HC595Component {
+class SN74HC595IGPIOComponent : public SN74HC595IComponent {
  public:
   void setup() override;
   void set_data_pin(GPIOPin *pin) { data_pin_ = pin; }
@@ -78,7 +78,7 @@ class SN74HC595GPIOComponent : public SN74HC595Component {
 };
 
 #ifdef USE_SPI
-class SN74HC595SPIComponent : public SN74HC595Component,
+class SN74HC595ISPIComponent : public SN74HC595IComponent,
                               public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_LOW,
                                                     spi::CLOCK_PHASE_LEADING, spi::DATA_RATE_4MHZ> {
  public:
@@ -90,5 +90,5 @@ class SN74HC595SPIComponent : public SN74HC595Component,
 
 #endif
 
-}  // namespace sn74hc595
+}  // namespace sn74hc595i
 }  // namespace esphome

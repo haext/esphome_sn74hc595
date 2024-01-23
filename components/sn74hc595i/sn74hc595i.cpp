@@ -1,20 +1,20 @@
-#include "sn74hc595.h"
+#include "sn74hc595i.h"
 #include "esphome/core/log.h"
 
 namespace esphome {
-namespace sn74hc595 {
+namespace sn74hc595i {
 
-static const char *const TAG = "sn74hc595Inverted";
+static const char *const TAG = "sn74hc595i";
 
-void SN74HC595Component::pre_setup_() {
-  ESP_LOGCONFIG(TAG, "Setting up SN74HC595Inverted...");
+void SN74HC595IComponent::pre_setup_() {
+  ESP_LOGCONFIG(TAG, "Setting up SN74HC595I...");
 
   if (this->have_oe_pin_) {  // disable output
     this->oe_pin_->setup();
     this->oe_pin_->digital_write(true);
   }
 }
-void SN74HC595Component::post_setup_() {
+void SN74HC595IComponent::post_setup_() {
   this->latch_pin_->setup();
   this->latch_pin_->digital_write(false);
 
@@ -22,7 +22,7 @@ void SN74HC595Component::post_setup_() {
   this->write_gpio();
 }
 
-void SN74HC595GPIOComponent::setup() {
+void SN74HC595IGPIOComponent::setup() {
   this->pre_setup_();
   this->clock_pin_->setup();
   this->data_pin_->setup();
@@ -32,16 +32,16 @@ void SN74HC595GPIOComponent::setup() {
 }
 
 #ifdef USE_SPI
-void SN74HC595SPIComponent::setup() {
+void SN74HC595ISPIComponent::setup() {
   this->pre_setup_();
   this->spi_setup();
   this->post_setup_();
 }
 #endif
 
-void SN74HC595Component::dump_config() { ESP_LOGCONFIG(TAG, "SN74HC595Inverted:"); }
+void SN74HC595IComponent::dump_config() { ESP_LOGCONFIG(TAG, "SN74HC595I:"); }
 
-void SN74HC595Component::digital_write_(uint16_t pin, bool value) {
+void SN74HC595IComponent::digital_write_(uint16_t pin, bool value) {
   if (pin >= this->sr_count_ * 8) {
     ESP_LOGE(TAG, "Pin %u is out of range! Maximum pin number with %u chips in series is %u", pin, this->sr_count_,
              (this->sr_count_ * 8) - 1);
@@ -55,7 +55,7 @@ void SN74HC595Component::digital_write_(uint16_t pin, bool value) {
   this->write_gpio();
 }
 
-void SN74HC595GPIOComponent::write_gpio() {
+void SN74HC595IGPIOComponent::write_gpio() {
   for (auto byte = this->output_bytes_.rbegin(); byte != this->output_bytes_.rend(); byte++) {
     for (int8_t i = 7; i >= 0; i--) {
       bool bit = !((*byte >> i) & 1);
@@ -64,21 +64,21 @@ void SN74HC595GPIOComponent::write_gpio() {
       this->clock_pin_->digital_write(false);
     }
   }
-  SN74HC595Component::write_gpio();
+  SN74HC595IComponent::write_gpio();
 }
 
 #ifdef USE_SPI
-void SN74HC595SPIComponent::write_gpio() {
+void SN74HC595ISPIComponent::write_gpio() {
   for (auto byte = this->output_bytes_.rbegin(); byte != this->output_bytes_.rend(); byte++) {
     this->enable();
     this->transfer_byte(*byte);
     this->disable();
   }
-  SN74HC595Component::write_gpio();
+  SN74HC595IComponent::write_gpio();
 }
 #endif
 
-void SN74HC595Component::write_gpio() {
+void SN74HC595IComponent::write_gpio() {
   // pulse latch to activate new values
   this->latch_pin_->digital_write(true);
   this->latch_pin_->digital_write(false);
@@ -89,12 +89,12 @@ void SN74HC595Component::write_gpio() {
   }
 }
 
-float SN74HC595Component::get_setup_priority() const { return setup_priority::IO; }
+float SN74HC595IComponent::get_setup_priority() const { return setup_priority::IO; }
 
-void SN74HC595GPIOPin::digital_write(bool value) {
+void SN74HC595IGPIOPin::digital_write(bool value) {
   this->parent_->digital_write_(this->pin_, value/* != this->inverted_*/);
 }
-std::string SN74HC595GPIOPin::dump_summary() const { return str_snprintf("%u via SN74HC595", 18, pin_); }
+std::string SN74HC595IGPIOPin::dump_summary() const { return str_snprintf("%u via SN74HC595I", 18, pin_); }
 
-}  // namespace sn74hc595
+}  // namespace sn74hc595i
 }  // namespace esphome
