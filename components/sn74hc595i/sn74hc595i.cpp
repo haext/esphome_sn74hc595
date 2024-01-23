@@ -92,7 +92,6 @@ void SN74HC595ISPIComponent::write_gpio() {
     this->enable();
     this->transfer_byte((*byte) ^ (*inverted));
     this->disable();
-    
     value++;
     inverted++;
   }
@@ -113,12 +112,8 @@ void SN74HC595IComponent::write_gpio() {
 
 float SN74HC595IComponent::get_setup_priority() const { return setup_priority::IO; }
 
-void SN74HC595IGPIOPin::digital_write(bool value) {
-  this->parent_->digital_write_(this->pin_, value);
-}
-void SN74HC595IGPIOPin::set_inverted(bool inverted) {
-  this->parent_->set_inverted_(this->pin_, inverted);
-}
+void SN74HC595IGPIOPin::digital_write(bool value) { this->parent_->digital_write_(this->pin_, value); }
+void SN74HC595IGPIOPin::set_inverted(bool inverted) { this->parent_->set_inverted_(this->pin_, inverted); }
 std::string SN74HC595IGPIOPin::dump_summary() const { return str_snprintf("%u via SN74HC595I", 18, pin_); }
 
 }  // namespace sn74hc595i
