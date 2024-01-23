@@ -58,7 +58,7 @@ class SN74HC595IGPIOPin : public GPIOPin, public Parented<SN74HC595IComponent> {
   std::string dump_summary() const override;
 
   void set_pin(uint16_t pin) { pin_ = pin; }
-  void set_inverted(bool inverted) override;
+  void set_inverted(bool inverted);
   
  protected:
   uint16_t pin_;
