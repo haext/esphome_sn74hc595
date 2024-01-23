@@ -4,10 +4,10 @@
 namespace esphome {
 namespace sn74hc595 {
 
-static const char *const TAG = "sn74hc595";
+static const char *const TAG = "sn74hc595Inverted";
 
 void SN74HC595Component::pre_setup_() {
-  ESP_LOGCONFIG(TAG, "Setting up SN74HC595...");
+  ESP_LOGCONFIG(TAG, "Setting up SN74HC595Inverted...");
 
   if (this->have_oe_pin_) {  // disable output
     this->oe_pin_->setup();
