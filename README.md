@@ -12,7 +12,7 @@ Changes from the base component:
 
 ```
 external_components:
-  - source: github://gdgib/esphome_sn74hc595@v0.0.1
+  - source: github://gdgib/esphome_sn74hc595@v0.0.2
 
 sn74hc595i:
   - id: 'sn74hc595_hub'
