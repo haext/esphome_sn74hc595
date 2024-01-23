@@ -48,18 +48,31 @@ void SN74HC595IComponent::digital_write_(uint16_t pin, bool value) {
     return;
   }
   if (value) {
-    this->output_bytes_[pin / 8] |= (1 << (pin % 8));
+    this->storage_bytes_[pin / 4] |= (1 << ((pin % 4) * 2));
   } else {
-    this->output_bytes_[pin / 8] &= ~(1 << (pin % 8));
+    this->storage_bytes_[pin / 4] &= ~(1 << ((pin % 4) * 2));
   }
   this->write_gpio();
+}
+void SN74HC595IComponent::set_inverted_(uint16_t pin, bool inverted) {
+  if (pin >= this->sr_count_ * 8) {
+    ESP_LOGE(TAG, "Pin %u is out of range! Maximum pin number with %u chips in series is %u", pin, this->sr_count_,
+             (this->sr_count_ * 8) - 1);
+    return;
+  }
+  if (inverted) {
+    this->storage_bytes_[pin / 4] |= (2 << ((pin % 4) * 2));
+  } else {
+    this->storage_bytes_[pin / 4] &= ~(2 << ((pin % 4) * 2));
+  }
 }
 
 void SN74HC595IGPIOComponent::write_gpio() {
   for (auto byte = this->output_bytes_.rbegin(); byte != this->output_bytes_.rend(); byte++) {
-    for (int8_t i = 7; i >= 0; i--) {
-      bool bit = !((*byte >> i) & 1);
-      this->data_pin_->digital_write(bit);
+    for (int8_t i = 3; i >= 0; i--) {
+      bool bit = (*byte >> (i * 2)) & 1;
+      bool inverted = (*byte >> (i * 2)) & 2;
+      this->data_pin_->digital_write(bit != inverted);
       this->clock_pin_->digital_write(true);
       this->clock_pin_->digital_write(false);
     }
@@ -92,7 +105,10 @@ void SN74HC595IComponent::write_gpio() {
 float SN74HC595IComponent::get_setup_priority() const { return setup_priority::IO; }
 
 void SN74HC595IGPIOPin::digital_write(bool value) {
-  this->parent_->digital_write_(this->pin_, value/* != this->inverted_*/);
+  this->parent_->digital_write_(this->pin_, value);
+}
+void SN74HC595IGPIOPin::set_inverted(bool inverted) {
+  this->parent_->set_inverted_(this->pin_, inverted);
 }
 std::string SN74HC595IGPIOPin::dump_summary() const { return str_snprintf("%u via SN74HC595I", 18, pin_); }
 
