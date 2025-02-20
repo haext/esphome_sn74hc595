@@ -61,7 +61,10 @@ class SN74HC595IGPIOPin : public GPIOPin, public Parented<SN74HC595IComponent> {
 
   void set_pin(uint16_t pin) { pin_ = pin; }
   void set_inverted(bool inverted);
-  
+
+  /// Always returns `gpio::Flags::FLAG_OUTPUT`.
+  gpio::Flags get_flags() const override { return gpio::Flags::FLAG_OUTPUT; }
+
  protected:
   uint16_t pin_;
 };
