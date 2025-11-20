@@ -70,11 +70,27 @@ void SN74HC595IComponent::set_inverted_(uint16_t pin, bool inverted) {
 void SN74HC595IGPIOComponent::write_gpio() {
   auto value = this->value_bytes_.rbegin();
   auto inverted = this->inverted_bytes_.rbegin();
+  #ifdef SAVE_WRITES
+  bool prev_to_write;
+  #endif
   while (value != this->value_bytes_.rend() && inverted != this->inverted_bytes_.rend()) {
     for (int8_t i = 7; i >= 0; i--) {
       bool value_bit = (*value >> i) & 1;
       bool value_inverted = (*inverted >> i) & 1;
+      #ifdef SAVE_WRITES
+        bool to_write = value_bit != value_inverted;
+        if (i < 7) {
+          if (prev_to_write != to_write){
+            this->data_pin_->digital_write(to_write);
+            prev_to_write = to_write;
+          }
+        } else {
+          this->data_pin_->digital_write(to_write);
+          prev_to_write = to_write;
+        }
+      #else
       this->data_pin_->digital_write(value_bit != value_inverted);
+      #endif
       this->clock_pin_->digital_write(true);
       this->clock_pin_->digital_write(false);
     }
@@ -114,7 +130,10 @@ float SN74HC595IComponent::get_setup_priority() const { return setup_priority::I
 
 void SN74HC595IGPIOPin::digital_write(bool value) { this->parent_->digital_write_(this->pin_, value); }
 void SN74HC595IGPIOPin::set_inverted(bool inverted) { this->parent_->set_inverted_(this->pin_, inverted); }
+#ifdef SAVE_WRITES
+std::string SN74HC595IGPIOPin::dump_summary() const { return str_snprintf("%u via SN74HC595I save_writes", 30, pin_); }
+#else
 std::string SN74HC595IGPIOPin::dump_summary() const { return str_snprintf("%u via SN74HC595I", 18, pin_); }
-
+#endif
 }  // namespace sn74hc595i
 }  // namespace esphome
