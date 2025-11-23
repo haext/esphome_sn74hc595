@@ -6,7 +6,7 @@ An improved fork of the [sn74hc595 component](https://esphome.io/components/sn74
 
 * `sn74hc595` becomes `sn74hc595i` in your configuration file
 * Pins with `inverted: true` will have the correct state on reset. In short `restore_mode` plays nice with `inverted`.  This avoids relays pulsing on boot-up and reset.
-* Adds `save_writes` to avoid toggling the pin when not necessary, useful when using the 74hc595 on slow interfaces like i2c gpio extenders.
+* It avoids toggling the data pin when not necessary, useful when using the 74hc595 on slow interfaces like i2c gpio extenders; added `force_all_writes` to disable the feature
 
 ## How to use
 
@@ -27,7 +27,7 @@ sn74hc595i:
 switch:
   - platform: gpio
     name: "SN74HC595 Pin #0"
-    save_writes: true
+    force_all_writes: false #default
     pin:
       sn74hc595: sn74hc595_hub
       number: 0

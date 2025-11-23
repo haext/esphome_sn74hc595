@@ -33,7 +33,7 @@ CONF_SN74HC595I = "sn74hc595i"
 CONF_LATCH_PIN = "latch_pin"
 CONF_OE_PIN = "oe_pin"
 CONF_SR_COUNT = "sr_count"
-CONF_SAVE_WRITES = "save_writes"
+CONF_ALL_WRITES = "force_all_writes"
 
 CONFIG_SCHEMA = cv.Any(
     cv.Schema(
@@ -44,7 +44,7 @@ CONFIG_SCHEMA = cv.Any(
             cv.Required(CONF_LATCH_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_OE_PIN): pins.gpio_output_pin_schema,
             cv.Optional(CONF_SR_COUNT, default=1): cv.int_range(min=1, max=256),
-            cv.Optional(CONF_SAVE_WRITES, default=False): cv.boolean,
+            cv.Optional(CONF_ALL_WRITES, default=False): cv.boolean,
         }
     ).extend(cv.COMPONENT_SCHEMA),
     cv.Schema(
@@ -79,8 +79,8 @@ async def to_code(config):
     else:
         raise EsphomeError("Not supported")
 
-    if config.get(CONF_SAVE_WRITES, False):
-        cg.add_define("SAVE_WRITES")
+    if config.get(CONF_ALL_WRITES, False):
+        cg.add_define("ALL_WRITES")
     latch_pin = await cg.gpio_pin_expression(config[CONF_LATCH_PIN])
     cg.add(var.set_latch_pin(latch_pin))
     if CONF_OE_PIN in config:
