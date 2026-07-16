@@ -130,7 +130,7 @@ float SN74HC595IComponent::get_setup_priority() const { return setup_priority::I
 
 void SN74HC595IGPIOPin::digital_write(bool value) { this->parent_->digital_write_(this->pin_, value); }
 void SN74HC595IGPIOPin::set_inverted(bool inverted) { this->parent_->set_inverted_(this->pin_, inverted); }
-size_t SN74HC595IGPIOPin::dump_summary(char *buffer, size_t len) const { return snprintf(buffer, len, "%u via SN74HC595I", pin_); }
+size_t SN74HC595IGPIOPin::dump_summary(char *buffer, size_t len) { return snprintf(buffer, len, "%u via SN74HC595I", pin_); }
 
 }  // namespace sn74hc595i
 }  // namespace esphome
