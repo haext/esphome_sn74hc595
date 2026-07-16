@@ -70,11 +70,27 @@ void SN74HC595IComponent::set_inverted_(uint16_t pin, bool inverted) {
 void SN74HC595IGPIOComponent::write_gpio() {
   auto value = this->value_bytes_.rbegin();
   auto inverted = this->inverted_bytes_.rbegin();
+  #ifndef ALL_WRITES
+  bool prev_to_write;
+  #endif
   while (value != this->value_bytes_.rend() && inverted != this->inverted_bytes_.rend()) {
     for (int8_t i = 7; i >= 0; i--) {
       bool value_bit = (*value >> i) & 1;
       bool value_inverted = (*inverted >> i) & 1;
-      this->data_pin_->digital_write(value_bit != value_inverted);
+      #ifdef ALL_WRITES
+        this->data_pin_->digital_write(value_bit != value_inverted);
+      #else
+        bool to_write = value_bit != value_inverted;
+        if (i < 7) {
+          if (prev_to_write != to_write){
+            this->data_pin_->digital_write(to_write);
+            prev_to_write = to_write;
+          }
+        } else {
+          this->data_pin_->digital_write(to_write);
+          prev_to_write = to_write;
+        }
+      #endif
       this->clock_pin_->digital_write(true);
       this->clock_pin_->digital_write(false);
     }
