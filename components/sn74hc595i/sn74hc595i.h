@@ -57,7 +57,7 @@ class SN74HC595IGPIOPin : public GPIOPin, public Parented<SN74HC595IComponent> {
   void pin_mode(gpio::Flags flags) override {}
   bool digital_read() override { return false; }
   void digital_write(bool value) override;
-  size_t dump_summary(char *buffer, size_t len) override;
+  size_t dump_summary(char *buffer, size_t len) const override;
 
   void set_pin(uint16_t pin) { pin_ = pin; }
   void set_inverted(bool inverted);
